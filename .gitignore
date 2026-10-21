@@ -1,0 +1,28 @@
+# Local continuity notes: never commit chat context or credentials.
+LOCAL_CONTEXT.md
+
+# Credentials and machine-specific configuration.
+.env
+.env.*
+!.env.example
+secrets/
+
+# Data, downloaded upstream code, checkpoints, and generated experiment outputs.
+data/
+external/
+artifacts/
+runs/
+outputs/
+checkpoints/
+wandb/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Python/editor artifacts.
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.pytest_cache/
