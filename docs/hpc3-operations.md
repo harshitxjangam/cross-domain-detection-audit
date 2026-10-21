@@ -22,10 +22,17 @@ assigned directory.
 
 1. Use the head node only for Git, staging, environment setup, and job
    submission.
-2. Inspect modules and available partitions with `module avail` and `sinfo`.
-3. Perform a 20-image smoke test through an interactive GPU allocation.
-4. Submit the pilot and full experiments through Slurm; record every job ID.
-5. Stage model weights and packages before jobs where possible. Compute nodes
+2. Request **exactly one GPU** per job. This course's GPU policy prohibits
+   multi-GPU reservations for this project.
+3. Inspect modules and available partitions with `module avail` and `sinfo`.
+4. Perform a 20-image smoke test through an interactive GPU allocation, then
+   release it immediately.
+5. Submit the pilot and full experiments through Slurm with realistic time
+   limits; record every job ID. Do not hold an allocation while debugging on
+   CPU, transferring files, or waiting for input.
+6. Check `nvidia-smi` during early runs to verify meaningful GPU utilization;
+   end jobs that are stalled or accidentally CPU-bound.
+7. Stage model weights and packages before jobs where possible. Compute nodes
    may lack normal outbound internet access.
 
 ## Planned validation commands
