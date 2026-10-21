@@ -7,9 +7,10 @@ post-processing and error modes under cross-domain shift.
 
 ## Research question
 
-For COCO-pretrained detectors transferred to autonomous-driving scenes, how
-much of the failure on small and nearby objects is associated with duplicate
-suppression versus upstream recall, localization, or classification errors?
+For COCO-pretrained detectors transferred without fine-tuning to two
+autonomous-driving domains, how much of the failure on small and nearby objects
+is associated with duplicate suppression versus upstream recall, localization,
+or classification errors?
 
 The study will compare three configurations from two families:
 
@@ -20,14 +21,15 @@ The study will compare three configurations from two families:
 | RT-DETR-R50 | transformer set prediction | NMS-free architectural comparison |
 | Faster R-CNN R50-FPN v2 | two-stage, region-based | anchor/RoI reference |
 
-Evaluation uses COCO val2017 as the in-domain reference and nuImages as the
-driving-domain benchmark. Both are projected into a documented shared taxonomy:
-`person`, `bicycle`, `motorcycle`, `car`, `bus`, and `truck`.
+Evaluation uses the shared course instances of KITTI and nuScenes. Both are
+projected into a deliberately strict taxonomy: `person`, `car`, and `truck`.
+KITTI `Van`/`Cyclist` and nuScenes categories without an exact counterpart are
+excluded rather than relabeled.
 
 ## Experimental design
 
-1. **Zero-shot baseline:** evaluate all three COCO-pretrained checkpoints on
-   fixed, deterministic samples from both domains.
+1. **Zero-shot baseline:** evaluate all four COCO-pretrained checkpoints on
+   the declared KITTI validation split and official nuScenes validation scenes.
 2. **Failure strata:** break AP and recall down by class, original-image object
    scale, same-class overlap, and all-class neighborhood density.
 3. **NMS intervention:** sweep final-stage NMS IoU only for YOLO and Faster

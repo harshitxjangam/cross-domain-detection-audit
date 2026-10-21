@@ -14,7 +14,7 @@ project-specific code/configuration in this repository.
 
 ## Project-specific extension
 
-This project adds a six-class COCO/nuImages protocol, deterministic manifests,
+This project adds a strict KITTI/nuScenes protocol, deterministic manifests,
 NMS-IoU intervention experiments, object-density/overlap strata, and TIDE error
 analysis. These components are intentionally separated from upstream so a
 grader can see exactly what was added.

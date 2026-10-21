@@ -6,10 +6,11 @@
     "torchvision:fasterrcnn_resnet50_fpn_v2",
     "hf_detr:PekingU/rtdetr_r50vd"
   ],
-  "datasets": ["coco", "nuimages"],
+  "datasets": ["kitti", "nuscenes"],
+  "splits": {"kitti": "val", "nuscenes": "official val / CAM_FRONT"},
   "score_floor": 0.001,
   "max_detections_saved": 300,
   "coco_max_detections": 100,
   "yolo_input_resolution": 640,
-  "purpose": "Primary zero-shot cross-domain comparison; one model-dataset pair per job."
+  "purpose": "Primary COCO-pretrained zero-shot comparison on two shared driving domains; one model-dataset pair per job."
 }

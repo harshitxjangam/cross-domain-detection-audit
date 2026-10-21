@@ -1,6 +1,8 @@
-"""Strict six-class intersection for COCO and nuImages.
+"""Strict three-class intersection for KITTI and nuScenes camera evaluation.
 
-This intentionally does not construct a cyclist label from person/bicycle pairs.
+The course cluster does not host nuImages. This project therefore evaluates
+COCO-pretrained detectors on two available autonomous-driving domains, using
+only object categories with unambiguous equivalents in both datasets.
 """
 
 from __future__ import annotations
@@ -9,23 +11,27 @@ from dataclasses import dataclass
 from typing import Mapping, Optional
 
 
-CLASSES = ("person", "bicycle", "motorcycle", "car", "bus", "truck")
+CLASSES = ("person", "car", "truck")
 
-NUIMAGES_EXACT = {
-    "vehicle.car": "car", "vehicle.bicycle": "bicycle",
-    "vehicle.motorcycle": "motorcycle", "vehicle.truck": "truck",
-    "vehicle.bus.bendy": "bus", "vehicle.bus.rigid": "bus",
-    "human.pedestrian.adult": "person", "human.pedestrian.child": "person",
+# Exact labels admitted from each ground-truth dataset. In particular, KITTI
+# Van and Cyclist, and nuScenes bicycle/motorcycle/bus/trailer, are excluded:
+# folding any of them into another label would contaminate the error audit.
+KITTI_EXACT = {"car": "car", "truck": "truck", "pedestrian": "person"}
+NUSCENES_EXACT = {
+    "vehicle.car": "car",
+    "vehicle.truck": "truck",
+    "human.pedestrian.adult": "person",
+    "human.pedestrian.child": "person",
     "human.pedestrian.construction_worker": "person",
     "human.pedestrian.police_officer": "person",
 }
 
 
 @dataclass(frozen=True)
-class SixClassTaxonomy:
-    """Duck-types the course harness Taxonomy interface used by its adapters."""
+class Driving3Taxonomy:
+    """Duck-types the taxonomy interface used by the course detector adapters."""
 
-    name: str = "coco_nuimages6"
+    name: str = "kitti_nuscenes3"
     classes: tuple[str, ...] = CLASSES
 
     @property
@@ -37,16 +43,13 @@ class SixClassTaxonomy:
             return None
         token = str(name).strip().lower().replace("-", "_").replace(" ", "_")
         aliases = {
-            "person": "person", "pedestrian": "person", "adult": "person",
-            "child": "person", "construction_worker": "person",
-            "police_officer": "person", "bicycle": "bicycle", "bike": "bicycle",
-            "motorcycle": "motorcycle", "motorbike": "motorcycle", "car": "car",
-            "bus": "bus", "truck": "truck", "bendy": "bus", "rigid": "bus",
+            # COCO checkpoint class names emitted by every selected detector.
+            "person": "person", "car": "car", "truck": "truck",
+            # Dataset labels are restricted by the exact maps above, but these
+            # aliases let the upstream name-based detector folding work.
+            "pedestrian": "person",
         }
-        # The course nuImages adapter normally calls this one component at a
-        # time. Supporting exact dotted names as well keeps the mapping usable
-        # and testable outside that adapter, without admitting broad vehicles.
-        unified = NUIMAGES_EXACT.get(token) or aliases.get(token)
+        unified = NUSCENES_EXACT.get(token) or KITTI_EXACT.get(token) or aliases.get(token)
         return self.classes.index(unified) if unified else None
 
     def build_id_lut(self, source_id2name: Mapping[int, str]) -> dict[int, Optional[int]]:
@@ -54,7 +57,9 @@ class SixClassTaxonomy:
                 for source_id, name in source_id2name.items()}
 
 
-def nuimages_to_id(dotted_name: str, taxonomy: SixClassTaxonomy) -> Optional[int]:
-    """Map exact nuImages families; reject categories with no clean COCO match."""
-    unified = NUIMAGES_EXACT.get(str(dotted_name).lower())
-    return taxonomy.name_to_id(unified)
+def kitti_to_id(name: str, taxonomy: Driving3Taxonomy) -> Optional[int]:
+    return taxonomy.name_to_id(KITTI_EXACT.get(str(name).lower()))
+
+
+def nuscenes_to_id(name: str, taxonomy: Driving3Taxonomy) -> Optional[int]:
+    return taxonomy.name_to_id(NUSCENES_EXACT.get(str(name).lower()))

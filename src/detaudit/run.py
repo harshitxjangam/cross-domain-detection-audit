@@ -18,8 +18,9 @@ from pathlib import Path
 
 import numpy as np
 
+from .datasets import build_dataset
 from .records import sample_record, sha256, write_json, write_manifest
-from .taxonomy import SixClassTaxonomy
+from .taxonomy import Driving3Taxonomy
 
 
 COCO_METRIC_KEYS = ("mAP", "AP50", "AP75", "AP_small", "AP_medium", "AP_large",
@@ -73,7 +74,7 @@ def preprocessing_metadata(detector, yolo_imgsz: int) -> dict:
     return {"type": "model-native upstream adapter"}
 
 
-def coco_metrics(records: list[dict], taxonomy: SixClassTaxonomy) -> dict:
+def coco_metrics(records: list[dict], taxonomy: Driving3Taxonomy) -> dict:
     """Compute canonical COCO metrics from saved JSON, independently of a model."""
     from pycocotools.coco import COCO
     from pycocotools.cocoeval import COCOeval
@@ -130,11 +131,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run one Track-A audit evaluation.")
     parser.add_argument("--upstream-root", type=Path, required=True)
     parser.add_argument("--model", required=True, help="e.g. yolo:yolo11s.pt or hf_detr:PekingU/rtdetr_r50vd")
-    parser.add_argument("--dataset", choices=("coco", "nuimages"), required=True)
-    parser.add_argument("--root", type=Path, required=True, help="COCO val image dir or nuImages root")
+    parser.add_argument("--dataset", choices=("kitti", "nuscenes"), required=True)
+    parser.add_argument("--root", type=Path, required=True, help="KITTI root or nuScenes v1.0-trainval root")
     parser.add_argument("--out-dir", type=Path, required=True)
-    parser.add_argument("--coco-ann", type=Path)
-    parser.add_argument("--nuimages-version", default="v1.0-val")
+    parser.add_argument("--split", default="val", help="KITTI split or nuScenes official split (val only)")
+    parser.add_argument("--camera", default="CAM_FRONT", help="nuScenes camera; fixed to CAM_FRONT by protocol")
     parser.add_argument("--max-images", type=int, default=0, help="0 evaluates the full split")
     parser.add_argument("--score-floor", type=float, default=0.001)
     parser.add_argument("--max-detections", type=int, default=300)
@@ -143,17 +144,14 @@ def main() -> None:
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--warmup-images", type=int, default=3)
     args = parser.parse_args()
-    if args.dataset == "coco" and not args.coco_ann:
-        parser.error("--coco-ann is required for COCO")
     if args.nms_iou is not None and not 0.0 < args.nms_iou < 1.0:
         parser.error("--nms-iou must be strictly between 0 and 1")
     sys.path.insert(0, str(args.upstream_root))
-    from DeepDataMiningLearning.ngdet.datasets import EvalDataset
     from DeepDataMiningLearning.ngdet.detectors.base import build_detector
 
-    taxonomy = SixClassTaxonomy()
-    dataset_kwargs = {"ann_file": str(args.coco_ann)} if args.dataset == "coco" else {"version": args.nuimages_version}
-    dataset = EvalDataset(args.dataset, str(args.root), taxonomy, max_images=args.max_images or None, **dataset_kwargs)
+    taxonomy = Driving3Taxonomy()
+    dataset = build_dataset(args.dataset, args.root, taxonomy, split=args.split,
+                            camera=args.camera, max_images=args.max_images or None)
     if not len(dataset):
         raise RuntimeError("Selected dataset yielded no images.")
     detector = configure_detector(build_detector(args.model, taxonomy, device=args.device, score_thr=args.score_floor),
@@ -181,7 +179,7 @@ def main() -> None:
     metadata.update({"model": args.model, "dataset": args.dataset, "root": str(args.root),
                      "num_images": len(records), "score_floor": args.score_floor,
                      "taxonomy": {"name": taxonomy.name, "classes": list(taxonomy.classes)},
-                     "dataset_split": "val2017" if args.dataset == "coco" else args.nuimages_version,
+                     "dataset_metadata": dataset.metadata,
                      "max_detections_saved": args.max_detections, "coco_max_detections": 100,
                      "final_nms_iou": args.nms_iou,
                      "preprocessing": preprocessing_metadata(detector, args.yolo_imgsz), "batch_size": 1,

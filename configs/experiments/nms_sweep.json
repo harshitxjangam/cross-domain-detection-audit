@@ -1,7 +1,8 @@
 {
   "name": "nms_sweep",
   "models": ["yolo:yolo11s.pt", "torchvision:fasterrcnn_resnet50_fpn_v2"],
-  "dataset": "nuimages",
+  "dataset": "nuscenes",
+  "split": "official val / CAM_FRONT",
   "nms_iou_values": [0.3, 0.45, 0.6, 0.75, 0.9],
   "score_floor": 0.001,
   "max_detections_saved": 300,

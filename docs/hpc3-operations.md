@@ -25,8 +25,8 @@ assigned directory.
 2. Request **exactly one GPU** per job. This course's GPU policy prohibits
    multi-GPU reservations for this project.
 3. Inspect modules and available partitions with `module avail` and `sinfo`.
-4. Perform a 20-image smoke test through an interactive GPU allocation, then
-   release it immediately.
+4. Submit the 20-image smoke test as a short, single-GPU batch job, then
+   inspect its log and release resources automatically at job completion.
 5. Submit the pilot and full experiments through Slurm with realistic time
    limits; record every job ID. Do not hold an allocation while debugging on
    CPU, transferring files, or waiting for input.
@@ -41,13 +41,17 @@ assigned directory.
 module avail
 sinfo
 conda info --envs
-srun -p "$SLURM_PARTITION" --pty /bin/bash
-nvidia-smi
-python -m torch.utils.collect_env
+python /data/cmpe249-fa26/examples/check_env.py  # inside the batch pilot
+python -m torch.utils.collect_env                 # inside the batch pilot
 ```
 
-The course guide gives `gpuqs` and `nsfqs` as examples, but availability and
-the GPU generation allocated to a particular job must be observed, not assumed.
+Before a GPU pilot, submit `scripts/hpc/preflight.sbatch`. It is a 15-minute,
+CPU-only batch validation of the exact KITTI and nuScenes paths used by this
+project.
+
+The observed class-accessible starting point is `gpuqs`; submit a one-P100
+request first. Do not use the faculty `condo` or NSF partitions unless the
+instructor explicitly authorizes them.
 
 ## Source guide
 

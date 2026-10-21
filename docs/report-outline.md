@@ -5,7 +5,8 @@ claim from the saved artifacts produced by the commands in `scripts/hpc/`.
 
 ## 1. Motivation and question (0.5 page)
 
-State the COCO-to-nuImages zero-shot question and the specific hypothesis:
+State the COCO-pretrained, zero-shot transfer question across KITTI and
+nuScenes and the specific hypothesis:
 final-stage duplicate suppression may explain some dense-detector failures, but
 cannot explain misses caused by classification, localization, or recall.
 Explicitly state that this is an empirical audit, not a new detector or a SOTA
@@ -13,7 +14,7 @@ claim.
 
 ## 2. Protocol and reproducibility (1--1.5 pages)
 
-Describe the four checkpoints, the two validation domains, strict six-class
+Describe the four checkpoints, the two validation domains, strict three-class
 mapping, model-native preprocessing, score floor (0.001), saved-candidate cap
 (300), metric cap (100), hardware, versions, and Slurm job IDs. Reference a
 table populated directly from `metrics.json`.
@@ -21,7 +22,7 @@ table populated directly from `metrics.json`.
 ## 3. Baseline cross-domain results (1.5--2 pages)
 
 Report mAP@[.50:.95], AP50, AP75, AP small/medium/large, AR, and per-class AP
-on COCO and nuImages. Make the domain-drop conclusion conditional on the actual
+on KITTI and nuScenes. Make the cross-domain conclusion conditional on the actual
 numbers. Include the first technical analysis: which class/scale degrades most?
 
 ## 4. Architecture and efficiency comparison (1--1.5 pages)
