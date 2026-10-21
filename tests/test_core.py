@@ -78,11 +78,13 @@ class TestArtifactAnalysis(unittest.TestCase):
         rpn = SimpleNamespace(nms_thresh=0.7)
         detector = SimpleNamespace(family="torchvision", score_thr=0.001,
                                    model=SimpleNamespace(roi_heads=roi_heads, rpn=rpn))
-        configure_detector(detector, nms_iou=0.9, max_detections=300, yolo_imgsz=640)
+        _, postprocessing = configure_detector(detector, nms_iou=0.9, max_detections=300, yolo_imgsz=640)
         self.assertEqual(roi_heads.score_thresh, 0.001)
         self.assertEqual(roi_heads.detections_per_img, 300)
         self.assertEqual(roi_heads.nms_thresh, 0.9)
         self.assertEqual(rpn.nms_thresh, 0.7)
+        self.assertEqual(postprocessing, {"final_nms_iou": 0.9, "nms_applied": True,
+                                          "rpn_nms_changed": False})
 
     def test_strata_uses_original_area_and_separate_density_dimensions(self):
         summary = strata([record()])

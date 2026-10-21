@@ -40,16 +40,21 @@ def configure_detector(detector, nms_iou: float | None, max_detections: int, yol
     Faster R-CNN's RPN NMS is untouched. RT-DETR has no NMS control and is used
     only as an architectural comparator.
     """
+    postprocessing = {"final_nms_iou": None, "nms_applied": False}
     if detector.family == "torchvision":
         if hasattr(detector.model, "roi_heads"):
             detector.model.roi_heads.score_thresh = detector.score_thr
             detector.model.roi_heads.detections_per_img = max_detections
             if nms_iou is not None:
                 detector.model.roi_heads.nms_thresh = nms_iou
+            postprocessing = {"final_nms_iou": float(detector.model.roi_heads.nms_thresh),
+                              "nms_applied": True, "rpn_nms_changed": False}
     if detector.family == "yolo":
+        resolved_nms_iou = nms_iou if nms_iou is not None else 0.7
+
         def yolo_predict(image, prompt=None):
             results = detector.model.predict(
-                image, device=detector.device, conf=0.0, iou=nms_iou or 0.7, imgsz=yolo_imgsz,
+                image, device=detector.device, conf=0.0, iou=resolved_nms_iou, imgsz=yolo_imgsz,
                 max_det=max_detections, verbose=False, half=detector._half,
             )[0]
             boxes = results.boxes.xyxy.detach().cpu().numpy().reshape(-1, 4)
@@ -58,7 +63,8 @@ def configure_detector(detector, nms_iou: float | None, max_detections: int, yol
             return detector._fold_to_unified(boxes, scores, labels)
 
         detector.predict = yolo_predict
-    return detector
+        postprocessing = {"final_nms_iou": resolved_nms_iou, "nms_applied": True}
+    return detector, postprocessing
 
 
 def preprocessing_metadata(detector, yolo_imgsz: int) -> dict:
@@ -154,8 +160,9 @@ def main() -> None:
                             camera=args.camera, max_images=args.max_images or None)
     if not len(dataset):
         raise RuntimeError("Selected dataset yielded no images.")
-    detector = configure_detector(build_detector(args.model, taxonomy, device=args.device, score_thr=args.score_floor),
-                                  args.nms_iou, args.max_detections, args.yolo_imgsz)
+    detector, postprocessing = configure_detector(
+        build_detector(args.model, taxonomy, device=args.device, score_thr=args.score_floor),
+        args.nms_iou, args.max_detections, args.yolo_imgsz)
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
     # Warm-up is intentionally outside timing and never enters metric artifacts.
@@ -181,7 +188,7 @@ def main() -> None:
                      "taxonomy": {"name": taxonomy.name, "classes": list(taxonomy.classes)},
                      "dataset_metadata": dataset.metadata,
                      "max_detections_saved": args.max_detections, "coco_max_detections": 100,
-                     "final_nms_iou": args.nms_iou,
+                     "postprocessing": postprocessing,
                      "preprocessing": preprocessing_metadata(detector, args.yolo_imgsz), "batch_size": 1,
                      "warmup_images": args.warmup_images, "command": [sys.executable, "-m", "detaudit.run", *sys.argv[1:]],
                      "mean_latency_ms": 1000 * float(np.mean(elapsed)),
