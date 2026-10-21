@@ -6,17 +6,16 @@ Never store a username, password, or real group directory in this repository.
 
 ## Storage and cache policy
 
-- Use the course-group `/data` directory for datasets and reusable model/cache
-  artifacts.
-- Use the course-group `/scratch` directory for generated predictions, logs,
-  temporary files, and Slurm outputs.
+- Read datasets only from the course-group `/data` directory.
+- Use a `scratch/` directory inside your own student workspace for generated
+  predictions, logs, temporary files, and Slurm outputs.
 - Keep the home directory small; redirect `HF_HOME` and `TORCH_HOME` away from
   it.
 - Keep dataset files, checkpoints, raw predictions, and outputs out of Git.
 
-The exact current-term group paths are not assumed. Set them only through a
-local environment file based on `configs/hpc.env.example` after verifying the
-assigned directory.
+Create a personal virtual environment over the course Python with
+`--system-site-packages`, then set its path and all writable output paths in a
+local environment file based on `configs/hpc.env.example`.
 
 ## Execution policy
 
@@ -40,7 +39,6 @@ assigned directory.
 ```bash
 module avail
 sinfo
-conda info --envs
 python /data/cmpe249-fa26/examples/check_env.py  # inside the batch pilot
 python -m torch.utils.collect_env                 # inside the batch pilot
 ```

@@ -25,7 +25,7 @@ PROJECT_SCRATCH_ROOT=${PROJECT_SCRATCH_ROOT:?export PROJECT_SCRATCH_ROOT before 
 if [[ -n "${CUDA_MODULE:-}" && "${CUDA_MODULE}" != "<leave-unset-unless-a-package-needs-nvcc>" ]]; then
   module load "${CUDA_MODULE}"
 fi
-source "${CONDA_BASE:?export CONDA_BASE before sbatch}/bin/activate" "${CONDA_ENV:?export CONDA_ENV before sbatch}"
+source "${VENV_PATH:?export VENV_PATH before sbatch}/bin/activate"
 export HF_HOME="${PROJECT_CACHE_ROOT:?export PROJECT_CACHE_ROOT before sbatch}/huggingface"
 export TORCH_HOME="${PROJECT_CACHE_ROOT}/torch"
 export PYTHONPATH="${PROJECT_ROOT}/src:${UPSTREAM_ROOT}:${PYTHONPATH:-}"

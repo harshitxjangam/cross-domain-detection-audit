@@ -14,11 +14,11 @@ set -euo pipefail
 
 : "${PROJECT_ROOT:?source local hpc.env before sbatch}"
 : "${PROJECT_DATA_ROOT:?source local hpc.env before sbatch}"
-: "${CONDA_BASE:?source local hpc.env before sbatch}"
-: "${CONDA_ENV:?source local hpc.env before sbatch}"
+: "${VENV_PATH:?source local hpc.env before sbatch}"
 
-source "${CONDA_BASE}/bin/activate" "${CONDA_ENV}"
+source "${VENV_PATH}/bin/activate"
 export PYTHONPATH="${PROJECT_ROOT}/src:${PYTHONPATH:-}"
 python -m detaudit.preflight \
   --kitti-root "${PROJECT_DATA_ROOT}/datasets/kitti" \
-  --nuscenes-root "${PROJECT_DATA_ROOT}/datasets/nuscenes/v1.0-trainval"
+  --nuscenes-root "${PROJECT_DATA_ROOT}/datasets/nuscenes/v1.0-trainval" \
+  --upstream-root "${UPSTREAM_ROOT:?source local hpc.env before sbatch}"
