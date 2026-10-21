@@ -1,50 +1,49 @@
-# Cross-Domain 2D Object Detection: Accuracy, Robustness, and Adaptation
+# Cross-Domain 2D Object Detection: A Post-Processing Failure Audit
 
 This repository contains the code, configurations, and exact commands for a
 reproducible experimental evaluation of modern 2D object detectors. The
-project extends the course `ngdet` tutorial with a controlled study of
-**compute-conditional resolution selection** under cross-domain shift.
+project extends the course `ngdet` tutorial with a controlled audit of
+post-processing and error modes under cross-domain shift.
 
 ## Research question
 
-For COCO-pretrained detectors deployed in autonomous-driving scenes, which
-detector family offers the best accuracy--latency trade-off under domain shift,
-and can a label-free, prediction-stability gate selectively spend high-
-resolution compute on images most likely to benefit from it?
+For COCO-pretrained detectors transferred to autonomous-driving scenes, how
+much of the failure on small and nearby objects is associated with duplicate
+suppression versus upstream recall, localization, or classification errors?
 
 The study will compare three configurations from two families:
 
 | Configuration | Family | Role |
 |---|---|---|
-| YOLO11s | one-stage, dense prediction | real-time baseline and fine-tuning candidate |
+| YOLO11s | one-stage, dense prediction | NMS-based real-time baseline |
 | YOLO11m | one-stage, dense prediction | capacity/speed trade-off |
 | RT-DETR-R50 | transformer set prediction | NMS-free architectural comparison |
 | Faster R-CNN R50-FPN v2 | two-stage, region-based | anchor/RoI reference |
 
 Evaluation uses COCO val2017 as the in-domain reference and nuImages as the
-driving-domain benchmark. Both are projected into a documented common
-taxonomy: `vehicle`, `person`, and `cyclist`.
+driving-domain benchmark. Both are projected into a documented shared taxonomy:
+`person`, `bicycle`, `motorcycle`, `car`, `bus`, and `truck`.
 
 ## Experimental design
 
 1. **Zero-shot baseline:** evaluate all three COCO-pretrained checkpoints on
    fixed, deterministic samples from both domains.
-2. **Transfer diagnosis:** break AP down by unified class and COCO object scale;
-   record end-to-end latency, throughput, and peak GPU memory.
-3. **Compute-conditional resolution:** compare fixed 640/960/1280-pixel
-   inference with a label-free gate. The gate measures disagreement between a
-   low-resolution preview and a medium-resolution preview, then runs a 1280
-   pass only when predictions are unstable. Its final detection set is from the
-   selected pass; it never uses ground truth at inference.
-4. **Optional adaptation extension:** only if the baseline is complete and HPC
-   time permits, compare target-only and balanced replay fine-tuning for the
-   best YOLO configuration.
+2. **Failure strata:** break AP and recall down by class, original-image object
+   scale, same-class overlap, and all-class neighborhood density.
+3. **NMS intervention:** sweep final-stage NMS IoU only for YOLO and Faster
+   R-CNN. For Faster R-CNN, RPN NMS remains fixed; RT-DETR is an NMS-free
+   architecture comparison, not an NMS toggle.
+4. **Error decomposition:** apply TIDE to saved predictions to measure
+   classification, localization, combined, duplicate, background, and missed
+   ground-truth contributions.
+5. **Speed profile:** record end-to-end latency, throughput, and peak GPU
+   memory on the same allocated GPU type.
 
-The key result is a **Pareto-style transfer profile**, rather than a single
-mAP number: target AP, worst-class AP, small-object AP, latency, memory, and
-the fraction of images escalated to high resolution are reported together. The
-gate is an experiment, not a pre-claimed improvement: it must beat fixed
-resolution at comparable mean latency to be retained as a positive result.
+The key result is a **failure anatomy**, rather than a single mAP number:
+target AP, scale/class-conditioned recall, TIDE errors, NMS sensitivity,
+latency, and memory are reported together. The study does not claim a new
+state-of-the-art detector; it tests a falsifiable architectural hypothesis with
+actual saved experiment artifacts.
 
 ## Repository layout
 
@@ -54,6 +53,7 @@ resolution at comparable mean latency to be retained as a positive result.
 - `src/` — project-specific measurement and analysis code.
 - `docs/` — taxonomy and reproducibility documentation.
 - `commands/` — exact commands used for each completed experiment.
+- `scripts/` — HPC staging, Slurm submission, and result-generation helpers.
 
 Datasets, upstream repositories, model weights, logs, and generated figures
 are deliberately excluded from Git. See `docs/reproducibility.md` before
@@ -61,8 +61,9 @@ running an experiment.
 
 ## Status
 
-Scaffold and protocol are prepared. HPC module names, storage paths, scheduler
-rules, and the available GPU partitions must be supplied before the first run.
+The protocol and HPC template are prepared. The exact class storage roots,
+available GPU partition, and installed module versions must be verified after
+login before the first run.
 
 ## Academic integrity
 

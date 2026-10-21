@@ -9,6 +9,7 @@ metadata record containing:
 - Framework, Python, PyTorch, CUDA, and GPU model information.
 - Resolution, batch size, threshold/NMS settings, random seed, and command.
 - Metrics, inference timing methodology, and peak allocated GPU memory.
+- Slurm job ID, node/GPU inventory, and the output-file SHA-256 manifest.
 
 Generated data and weights are not committed. The final report will reproduce
 the commands and include enough output metadata for an independent rerun.
@@ -17,12 +18,12 @@ the commands and include enough output metadata for an independent rerun.
 
 1. Validate the environment and every model adapter on 5--20 images.
 2. Generate fixed evaluation manifests for COCO val2017 and nuImages.
-3. Run the zero-shot matrix.
-4. Run latency/memory profiling after warm-up, using fixed batch size and
-   resolution.
-5. Create leakage-free target train/validation/test splits and run the two
-   adaptation conditions.
-6. Regenerate all tables/figures directly from result JSON files.
+3. Run the zero-shot baseline matrix.
+4. Run latency/memory profiling after warm-up with batch size 1, on the same
+   GPU type for every model.
+5. Run final-stage NMS-IoU sweeps for YOLO and Faster R-CNN only.
+6. Generate TIDE and scale/density/overlap analyses from saved predictions.
+7. Regenerate all tables/figures directly from result JSON files.
 
 No conclusions are pre-registered: negative results will be retained and
 discussed if they occur.
