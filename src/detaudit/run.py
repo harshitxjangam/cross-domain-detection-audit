@@ -8,6 +8,7 @@ for this project's NMS audit.
 from __future__ import annotations
 
 import argparse
+import importlib.metadata
 import json
 import os
 import platform
@@ -130,7 +131,18 @@ def environment_metadata(upstream_root: Path) -> dict:
     if torch.cuda.is_available():
         metadata["gpu"] = torch.cuda.get_device_name(0)
         metadata["gpu_memory_bytes"] = torch.cuda.get_device_properties(0).total_memory
+    packages = ("pycocotools", "tidecv", "ultralytics", "transformers", "accelerate")
+    metadata["package_versions"] = {
+        package: _installed_version(package) for package in packages
+    }
     return metadata
+
+
+def _installed_version(package: str) -> str | None:
+    try:
+        return importlib.metadata.version(package)
+    except importlib.metadata.PackageNotFoundError:
+        return None
 
 
 def main() -> None:

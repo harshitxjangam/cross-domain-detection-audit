@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-import importlib.util
+import importlib.metadata
 import json
 import sys
 from pathlib import Path
@@ -37,18 +37,26 @@ def main() -> None:
     sys.path.insert(0, str(args.upstream_root))
     from DeepDataMiningLearning.ngdet.detectors.base import build_detector
 
-    required_packages = ("pycocotools", "tidecv", "ultralytics", "transformers")
-    missing_packages = [name for name in required_packages if importlib.util.find_spec(name) is None]
+    required_packages = ("pycocotools", "tidecv", "ultralytics", "transformers", "accelerate")
+    package_versions = {name: _installed_version(name) for name in required_packages}
+    missing_packages = [name for name, version in package_versions.items() if version is None]
     if missing_packages:
         raise RuntimeError(
             "Missing runtime packages: " + ", ".join(missing_packages) +
             ". Install them in the personal virtual environment before requesting a GPU.")
     print(json.dumps({
         "upstream_build_detector": str(build_detector),
-        "runtime_packages": list(required_packages),
+        "runtime_packages": package_versions,
         "kitti": describe("kitti", args.kitti_root),
         "nuscenes": describe("nuscenes", args.nuscenes_root),
     }, indent=2))
+
+
+def _installed_version(package: str) -> str | None:
+    try:
+        return importlib.metadata.version(package)
+    except importlib.metadata.PackageNotFoundError:
+        return None
 
 
 if __name__ == "__main__":
