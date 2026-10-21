@@ -49,13 +49,13 @@ actual saved experiment artifacts.
 
 ## Repository layout
 
-- `configs/` — versioned experiment definitions (no paths or secrets).
-- `scripts/` — deterministic setup, evaluation, analysis, and SLURM entry
+- `configs/`: versioned experiment definitions (no paths or secrets).
+- `scripts/`: deterministic setup, evaluation, analysis, and SLURM entry
   points.
-- `src/` — project-specific measurement and analysis code.
-- `docs/` — taxonomy and reproducibility documentation.
-- `commands/` — exact commands used for each completed experiment.
-- `scripts/` — HPC staging, Slurm submission, and result-generation helpers.
+- `src/`: project-specific measurement and analysis code.
+- `docs/`: taxonomy and reproducibility documentation.
+- `commands/`: exact commands used for each completed experiment.
+- `scripts/`: HPC staging, Slurm submission, and result-generation helpers.
 
 Datasets, upstream repositories, model weights, logs, and generated figures
 are deliberately excluded from Git. See `docs/reproducibility.md` before

@@ -18,11 +18,11 @@ CAM_FRONT without writing to shared data or reserving a GPU.
 
 Run `configs/experiments/pilot_yolo11s_kitti.json` on 20 images. It must create:
 
-- `records.json` — all GT and post-NMS detections;
-- `manifest.json` — deterministic evaluated image IDs;
-- `metrics.json` — COCO metrics, timing, GPU memory, versions, model settings;
-- `strata.json` — original-coordinate scale and density counts;
-- `tide/tide_report.json` — error decomposition linked by the `records.json`
+- `records.json`: all GT and post-NMS detections;
+- `manifest.json`: deterministic evaluated image IDs;
+- `metrics.json`: COCO metrics, timing, GPU memory, versions, model settings;
+- `strata.json`: original-coordinate scale and density counts;
+- `tide/tide_report.json`: error decomposition linked by the `records.json`
   SHA-256, plus the exact COCO-format inputs TIDE consumed;
 - Slurm stdout/stderr and `console.log`.
 
