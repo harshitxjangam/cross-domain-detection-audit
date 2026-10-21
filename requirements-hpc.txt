@@ -1,0 +1,12 @@
+# Install after the upstream DeepDataMiningLearning environment is usable.
+# GPU-specific torch/torchvision wheels are installed separately to match the
+# allocated HPC CUDA runtime; do not install a random CUDA wheel on a login node.
+-e .
+numpy>=1.24
+Pillow>=10
+pycocotools>=2.0.7
+PyYAML>=6.0
+tidecv>=1.0.1
+ultralytics>=8.3
+transformers>=4.45
+accelerate>=1.0

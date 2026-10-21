@@ -5,6 +5,8 @@ LOCAL_CONTEXT.md
 .env
 .env.*
 !.env.example
+hpc.env
+hpc.env.*
 secrets/
 
 # Data, downloaded upstream code, checkpoints, and generated experiment outputs.

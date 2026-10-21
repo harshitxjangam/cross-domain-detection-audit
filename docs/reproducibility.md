@@ -4,10 +4,11 @@ Each experiment is identified by a configuration file and writes a compact
 metadata record containing:
 
 - Git commit of this repository and the pinned upstream tutorial commit.
-- Checkpoint identifier and SHA-256 when available.
+- Checkpoint identifier (and SHA-256 when the checkpoint is a local file).
 - Dataset version, split, taxonomy version, and deterministic image manifest.
 - Framework, Python, PyTorch, CUDA, and GPU model information.
-- Resolution, batch size, threshold/NMS settings, random seed, and command.
+- Model-native preprocessing, batch size, threshold/NMS settings, and exact
+  command. (No random sampling is used by the deterministic evaluation split.)
 - Metrics, inference timing methodology, and peak allocated GPU memory.
 - Slurm job ID, node/GPU inventory, and the output-file SHA-256 manifest.
 

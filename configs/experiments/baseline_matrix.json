@@ -1,0 +1,15 @@
+{
+  "name": "baseline_matrix",
+  "models": [
+    "yolo:yolo11s.pt",
+    "yolo:yolo11m.pt",
+    "torchvision:fasterrcnn_resnet50_fpn_v2",
+    "hf_detr:PekingU/rtdetr_r50vd"
+  ],
+  "datasets": ["coco", "nuimages"],
+  "score_floor": 0.001,
+  "max_detections_saved": 300,
+  "coco_max_detections": 100,
+  "yolo_input_resolution": 640,
+  "purpose": "Primary zero-shot cross-domain comparison; one model-dataset pair per job."
+}

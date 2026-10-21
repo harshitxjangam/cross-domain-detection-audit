@@ -1,0 +1,12 @@
+{
+  "name": "pilot_yolo11s_coco",
+  "model": "yolo:yolo11s.pt",
+  "dataset": "coco",
+  "max_images": 20,
+  "score_floor": 0.001,
+  "max_detections_saved": 300,
+  "coco_max_detections": 100,
+  "input_resolution": 640,
+  "nms_iou": 0.7,
+  "purpose": "Smoke-test the complete artifact and metric pipeline."
+}
