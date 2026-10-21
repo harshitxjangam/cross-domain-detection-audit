@@ -16,6 +16,7 @@ RUN_NAME=${1:?run name required}
 MODEL=${2:?model spec required}
 DATASET=${3:?dataset required}
 NMS_IOU=${4:-}
+MAX_IMAGES=${MAX_IMAGES:-0}
 PROJECT_ROOT=${PROJECT_ROOT:?export PROJECT_ROOT before sbatch}
 UPSTREAM_ROOT=${UPSTREAM_ROOT:?export UPSTREAM_ROOT before sbatch}
 PROJECT_DATA_ROOT=${PROJECT_DATA_ROOT:?export PROJECT_DATA_ROOT before sbatch}
@@ -34,7 +35,7 @@ NUSCENES_ROOT="${PROJECT_DATA_ROOT}/datasets/nuscenes/v1.0-trainval"
 OUT_DIR="${PROJECT_SCRATCH_ROOT}/runs/${RUN_NAME}"
 
 mkdir -p "${OUT_DIR}"
-CMD=(python -m detaudit.run --upstream-root "${UPSTREAM_ROOT}" --model "${MODEL}" --dataset "${DATASET}" --out-dir "${OUT_DIR}" --score-floor 0.001 --max-detections 300 --yolo-imgsz 640 --device cuda)
+CMD=(python -m detaudit.run --upstream-root "${UPSTREAM_ROOT}" --model "${MODEL}" --dataset "${DATASET}" --out-dir "${OUT_DIR}" --score-floor 0.001 --max-detections 300 --max-images "${MAX_IMAGES}" --yolo-imgsz 640 --device cuda)
 if [[ "${DATASET}" == "kitti" ]]; then
   CMD+=(--root "${KITTI_ROOT}" --split val)
 elif [[ "${DATASET}" == "nuscenes" ]]; then

@@ -7,7 +7,7 @@ matrix until the previous stage has produced valid artifacts.
 
 On the HPC head node, clone the upstream repository and this project into the
 student directory, create a local environment file from
-`scripts/hpc/hpc.env.example`, and cache checkpoints before GPU jobs if the
+`configs/hpc.env.example`, and cache checkpoints before GPU jobs if the
 network policy permits. Record the upstream commit SHA.
 
 Submit `scripts/hpc/preflight.sbatch` first. It is a CPU-only job which confirms
@@ -16,7 +16,8 @@ CAM_FRONT without writing to shared data or reserving a GPU.
 
 ## 2. Smoke test
 
-Run `configs/experiments/pilot_yolo11s_kitti.json` on 20 images. It must create:
+Run `configs/experiments/pilot_yolo11s_kitti.json` on 20 images with
+`MAX_IMAGES=20` exported before submitting the job. It must create:
 
 - `records.json`: all GT and post-NMS detections;
 - `manifest.json`: deterministic evaluated image IDs;
