@@ -59,6 +59,18 @@ Datasets, upstream repositories, model weights, logs, and generated figures
 are deliberately excluded from Git. See `docs/reproducibility.md` before
 running an experiment.
 
+## Local verification
+
+After creating a Python 3.10+ environment and installing the lightweight
+project dependencies, run the CPU-only artifact checks before using HPC:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+They validate the taxonomy, COCO-format metric schema, final RoI-NMS-only
+intervention guard, original-coordinate strata, and saved-records-to-TIDE path.
+
 ## Status
 
 The protocol and HPC template are prepared. The exact class storage roots,

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from .records import sha256, write_json
@@ -21,13 +22,18 @@ def coco_payload(records: list[dict]) -> tuple[dict, list[dict]]:
     ann_id = 1
     for record in records:
         image_id = int(record["image_id"])
-        images.append({"id": image_id, "file_name": str(image_id)})
+        images.append({"id": image_id, "file_name": str(image_id),
+                       "width": int(record["width"]), "height": int(record["height"])})
         for box, label in zip(record["gt_boxes_xyxy"], record["gt_labels"]):
             x1, y1, x2, y2 = map(float, box)
             width, height = x2 - x1, y2 - y1
             annotations.append({
                 "id": ann_id, "image_id": image_id, "category_id": int(label) + 1,
                 "bbox": [x1, y1, width, height], "area": width * height, "iscrowd": 0,
+                # TIDE's COCO reader requires a segmentation even in BOX mode.
+                # A rectangular polygon is exact for the only annotation type
+                # retained by this 2D bounding-box audit.
+                "segmentation": [[x1, y1, x2, y1, x2, y2, x1, y2]],
             })
             ann_id += 1
         for box, score, label in zip(record["pred_boxes_xyxy"], record["pred_scores"], record["pred_labels"]):
@@ -48,15 +54,26 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate a machine-readable TIDE report from saved detections.")
     parser.add_argument("records", type=Path, help="records.json produced by detaudit.run")
     parser.add_argument("--out-dir", type=Path, required=True)
+    parser.add_argument("--tide-cache-dir", type=Path,
+                        help="Writable TIDE cache directory; defaults inside --out-dir.")
     parser.add_argument("--plot", action="store_true", help="Also ask TIDE to render its summary PNG.")
     args = parser.parse_args()
-
-    from tidecv import TIDE, datasets
 
     records = json.loads(args.records.read_text(encoding="utf-8"))
     if not records:
         raise RuntimeError("records.json is empty")
     args.out_dir.mkdir(parents=True, exist_ok=True)
+    # TIDE otherwise creates a cache in a user-specific home-directory path.
+    # Keep it with the run so batch jobs work on restricted compute nodes and
+    # so no shared home-directory state changes the analysis.
+    tide_cache = args.tide_cache_dir or args.out_dir / ".tide-cache"
+    tide_cache.mkdir(parents=True, exist_ok=True)
+    matplotlib_cache = args.out_dir / ".matplotlib"
+    matplotlib_cache.mkdir(parents=True, exist_ok=True)
+    os.environ["TIDE_PATH"] = str(tide_cache)
+    os.environ.setdefault("MPLCONFIGDIR", str(matplotlib_cache))
+
+    from tidecv import TIDE, datasets
     ground_truth, detections = coco_payload(records)
     gt_path, pred_path = args.out_dir / "tide_ground_truth.json", args.out_dir / "tide_predictions.json"
     write_json(gt_path, ground_truth)

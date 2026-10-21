@@ -22,6 +22,10 @@ from .records import sample_record, sha256, write_json, write_manifest
 from .taxonomy import SixClassTaxonomy
 
 
+COCO_METRIC_KEYS = ("mAP", "AP50", "AP75", "AP_small", "AP_medium", "AP_large",
+                    "AR_1", "AR_10", "AR_100", "AR_small", "AR_medium", "AR_large")
+
+
 def upstream_commit(root: Path) -> str:
     try:
         return subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
@@ -91,7 +95,8 @@ def coco_metrics(records: list[dict], taxonomy: SixClassTaxonomy) -> dict:
     cats = [{"id": idx + 1, "name": name} for idx, name in enumerate(taxonomy.classes)]
     gt = COCO(); gt.dataset = {"images": images, "annotations": annotations, "categories": cats}; gt.createIndex()
     if not detections:
-        return {"mAP": 0.0, "AP50": 0.0, "AP75": 0.0, "per_class": {c: 0.0 for c in taxonomy.classes}}
+        return {**{key: 0.0 for key in COCO_METRIC_KEYS},
+                "per_class": {c: 0.0 for c in taxonomy.classes}, "coco_stats": [0.0] * 12}
     evaluator = COCOeval(gt, gt.loadRes(detections), "bbox")
     evaluator.params.maxDets = [1, 10, 100]
     evaluator.evaluate(); evaluator.accumulate(); evaluator.summarize()
