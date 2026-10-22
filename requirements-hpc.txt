@@ -2,6 +2,11 @@
 # --system-site-packages. Do not reinstall torch, torchvision, mmcv, or numpy.
 -e .
 tidecv==1.0.1
+# TIDE imports these at module load. Matplotlib, NumPy, and pycocotools come
+# from the shared course environment.
+appdirs==1.4.4
+pandas==2.2.3
+seaborn==0.13.2
 ultralytics==8.3.0
 ultralytics-thop==2.0.14
 transformers==4.45.2
