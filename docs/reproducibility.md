@@ -29,3 +29,15 @@ the commands and include enough output metadata for an independent rerun.
 
 No conclusions are pre-registered: negative results will be retained and
 discussed if they occur.
+
+## Local smoke testing
+
+The MacBook is appropriate for validating adapters and output artifacts, but
+not for the full experimental matrix. Create a local virtual environment,
+install the project plus the model runtimes, and use `--device auto`. The
+runner selects CUDA when available, then Apple Metal Performance Shaders (MPS),
+then CPU. HPC commands remain explicit `--device cuda` commands.
+
+Use a bounded, local dataset copy only for smoke tests. A local smoke run is
+not evidence for the final report and must not be mixed with the course-dataset
+results.

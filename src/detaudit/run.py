@@ -28,6 +28,19 @@ COCO_METRIC_KEYS = ("mAP", "AP50", "AP75", "AP_small", "AP_medium", "AP_large",
                     "AR_1", "AR_10", "AR_100", "AR_small", "AR_medium", "AR_large")
 
 
+def resolve_device(requested: str) -> str:
+    """Resolve a portable local default without changing explicit requests."""
+    if requested != "auto":
+        return requested
+    import torch
+
+    if torch.cuda.is_available():
+        return "cuda"
+    if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
+        return "mps"
+    return "cpu"
+
+
 def upstream_commit(root: Path) -> str:
     try:
         return subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
@@ -159,11 +172,13 @@ def main() -> None:
     parser.add_argument("--max-detections", type=int, default=300)
     parser.add_argument("--nms-iou", type=float, default=None)
     parser.add_argument("--yolo-imgsz", type=int, default=640)
-    parser.add_argument("--device", default="cuda")
+    parser.add_argument("--device", default="auto",
+                        help="auto selects CUDA, MPS, then CPU; HPC jobs pass cuda explicitly")
     parser.add_argument("--warmup-images", type=int, default=3)
     args = parser.parse_args()
     if args.nms_iou is not None and not 0.0 < args.nms_iou < 1.0:
         parser.error("--nms-iou must be strictly between 0 and 1")
+    args.device = resolve_device(args.device)
     sys.path.insert(0, str(args.upstream_root))
     from DeepDataMiningLearning.ngdet.detectors.base import build_detector
 

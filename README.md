@@ -59,7 +59,9 @@ actual saved experiment artifacts.
 
 Datasets, upstream repositories, model weights, logs, and generated figures
 are deliberately excluded from Git. See `docs/reproducibility.md` before
-running an experiment.
+running an experiment. If the course HPC scheduler association is unavailable,
+the bounded single-GPU cloud fallback is documented in
+`docs/runpod-operations.md`.
 
 ## Local verification
 

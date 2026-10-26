@@ -20,7 +20,7 @@ from PIL import Image
 
 from detaudit.analyze import strata
 from detaudit.datasets import Kitti2DDataset
-from detaudit.run import coco_metrics, configure_detector
+from detaudit.run import coco_metrics, configure_detector, resolve_device
 from detaudit.taxonomy import Driving3Taxonomy, kitti_to_id, nuscenes_to_id
 from detaudit.tide_report import main as tide_main
 
@@ -73,6 +73,12 @@ class TestTaxonomyAndDatasets(unittest.TestCase):
 
 
 class TestArtifactAnalysis(unittest.TestCase):
+    def test_auto_device_prefers_available_accelerator(self):
+        with patch("torch.cuda.is_available", return_value=False), \
+             patch("torch.backends.mps.is_available", return_value=False):
+            self.assertEqual(resolve_device("auto"), "cpu")
+        self.assertEqual(resolve_device("cpu"), "cpu")
+
     def test_faster_rcnn_sweep_changes_only_final_roi_nms(self):
         roi_heads = SimpleNamespace(score_thresh=0.5, detections_per_img=100, nms_thresh=0.5)
         rpn = SimpleNamespace(nms_thresh=0.7)
