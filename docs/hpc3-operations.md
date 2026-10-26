@@ -44,7 +44,7 @@ python -m torch.utils.collect_env                 # inside the batch pilot
 ```
 
 Before a GPU pilot, submit `scripts/hpc/preflight.sbatch`. It is a 15-minute,
-CPU-only batch validation of the exact KITTI and nuScenes paths used by this
+CPU-only batch validation of the exact COCO and KITTI paths used by this
 project.
 
 The observed class-accessible starting point is `gpuqs`; submit a one-P100

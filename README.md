@@ -21,15 +21,15 @@ The study will compare three configurations from two families:
 | RT-DETR-R50 | transformer set prediction | NMS-free architectural comparison |
 | Faster R-CNN R50-FPN v2 | two-stage, region-based | anchor/RoI reference |
 
-Evaluation uses the shared course instances of KITTI and nuScenes. Both are
-projected into a deliberately strict taxonomy: `person`, `car`, and `truck`.
-KITTI `Van`/`Cyclist` and nuScenes categories without an exact counterpart are
-excluded rather than relabeled.
+Evaluation uses COCO val2017 as the source domain and KITTI as the
+autonomous-driving target domain. Both use a deliberately strict taxonomy:
+`person`, `car`, and `truck`. KITTI `Van`/`Cyclist` and COCO categories outside
+the three-class protocol are excluded rather than relabeled.
 
 ## Experimental design
 
 1. **Zero-shot baseline:** evaluate all four COCO-pretrained checkpoints on
-   the declared KITTI validation split and official nuScenes validation scenes.
+   the declared COCO val2017 and KITTI validation splits.
 2. **Failure strata:** break AP and recall down by class, original-image object
    scale, same-class overlap, and all-class neighborhood density.
 3. **NMS intervention:** sweep final-stage NMS IoU only for YOLO and Faster

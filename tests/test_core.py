@@ -19,7 +19,7 @@ from unittest.mock import patch
 from PIL import Image
 
 from detaudit.analyze import strata
-from detaudit.datasets import Kitti2DDataset
+from detaudit.datasets import CocoValDataset, Kitti2DDataset
 from detaudit.run import coco_metrics, configure_detector, resolve_device
 from detaudit.taxonomy import Driving3Taxonomy, kitti_to_id, nuscenes_to_id
 from detaudit.tide_report import main as tide_main
@@ -69,6 +69,28 @@ class TestTaxonomyAndDatasets(unittest.TestCase):
             sample = dataset[0]
             self.assertEqual(sample.image.size, (100, 80))
             self.assertEqual(sample.gt_boxes.tolist(), [[1.0, 2.0, 30.0, 40.0]])
+            self.assertEqual(sample.gt_labels.tolist(), [1])
+
+    def test_coco_reader_uses_val2017_and_drops_unmapped_categories(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "annotations").mkdir()
+            (root / "val2017").mkdir()
+            Image.new("RGB", (100, 80)).save(root / "val2017" / "000000000007.jpg")
+            payload = {
+                "images": [{"id": 7, "file_name": "000000000007.jpg", "width": 100, "height": 80}],
+                "categories": [{"id": 1, "name": "person"}, {"id": 3, "name": "car"},
+                               {"id": 17, "name": "cat"}],
+                "annotations": [
+                    {"id": 1, "image_id": 7, "category_id": 3, "bbox": [1, 2, 30, 40], "iscrowd": 0},
+                    {"id": 2, "image_id": 7, "category_id": 17, "bbox": [1, 2, 30, 40], "iscrowd": 0},
+                ],
+            }
+            (root / "annotations" / "instances_val2017.json").write_text(json.dumps(payload), encoding="utf-8")
+            dataset = CocoValDataset(root, Driving3Taxonomy(), split="val")
+            sample = dataset[0]
+            self.assertEqual(sample.image_id, 7)
+            self.assertEqual(sample.gt_boxes.tolist(), [[1.0, 2.0, 31.0, 42.0]])
             self.assertEqual(sample.gt_labels.tolist(), [1])
 
 

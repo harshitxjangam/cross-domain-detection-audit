@@ -162,8 +162,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run one Track-A audit evaluation.")
     parser.add_argument("--upstream-root", type=Path, required=True)
     parser.add_argument("--model", required=True, help="e.g. yolo:yolo11s.pt or hf_detr:PekingU/rtdetr_r50vd")
-    parser.add_argument("--dataset", choices=("kitti", "nuscenes"), required=True)
-    parser.add_argument("--root", type=Path, required=True, help="KITTI root or nuScenes v1.0-trainval root")
+    parser.add_argument("--dataset", choices=("coco", "kitti", "nuscenes"), required=True)
+    parser.add_argument("--root", type=Path, required=True,
+                        help="COCO root, KITTI root, or nuScenes v1.0-trainval root")
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--split", default="val", help="KITTI split or nuScenes official split (val only)")
     parser.add_argument("--camera", default="CAM_FRONT", help="nuScenes camera; fixed to CAM_FRONT by protocol")

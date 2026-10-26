@@ -10,6 +10,5 @@ Planned names:
 - `experiments/baseline_matrix.json`
 - `experiments/nms_sweep.json`
 
-The declared protocol is COCO-pretrained zero-shot evaluation on the shared
-KITTI and nuScenes datasets, not nuImages (which is unavailable on the course
-storage).
+The declared protocol is COCO-pretrained source-domain evaluation on COCO
+val2017 and zero-shot transfer to KITTI validation.

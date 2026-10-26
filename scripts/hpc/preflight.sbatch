@@ -19,6 +19,6 @@ set -euo pipefail
 source "${VENV_PATH}/bin/activate"
 export PYTHONPATH="${PROJECT_ROOT}/src:${PYTHONPATH:-}"
 python -m detaudit.preflight \
+  --coco-root "${PROJECT_DATA_ROOT}/datasets/coco" \
   --kitti-root "${PROJECT_DATA_ROOT}/datasets/kitti" \
-  --nuscenes-root "${PROJECT_DATA_ROOT}/datasets/nuscenes/v1.0-trainval" \
   --upstream-root "${UPSTREAM_ROOT:?source local hpc.env before sbatch}"

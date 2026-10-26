@@ -1,21 +1,20 @@
 # Evaluation taxonomy
 
-The shared course storage does not contain nuImages, and course policy prohibits
-private dataset copies. The evaluation therefore uses KITTI and nuScenes and
-converts predictions and ground truth to a deliberately narrow shared label
-space. Classes outside it are ignored rather than treated as false negatives.
+The experiment evaluates COCO val2017 as the source domain and KITTI as the
+autonomous-driving target domain. Both datasets are converted to a deliberately
+narrow shared label space. Classes outside it are ignored rather than treated
+as false negatives.
 
-| Evaluation class | COCO-pretrained detector label | KITTI label | nuScenes categories |
-|---|---|---|---|
-| `person` | person | `Pedestrian` | adult, child, construction worker, police officer pedestrian |
-| `car` | car | `Car` | `vehicle.car` |
-| `truck` | truck | `Truck` | `vehicle.truck` |
+| Evaluation class | COCO ground truth and detector label | KITTI label |
+|---|---|---|
+| `person` | person | `Pedestrian` |
+| `car` | car | `Car` |
+| `truck` | truck | `Truck` |
 
-KITTI `Van`, `Cyclist`, `Person_sitting`, and `Tram`, and nuScenes categories
-such as buses, bicycles, motorcycles, trailers, and barriers are excluded. This
-avoids relabeling semantically different objects or constructing synthetic
-classes. nuScenes boxes are explicitly documented as 3D annotations projected
-into CAM_FRONT image coordinates; KITTI uses its native 2D boxes.
+KITTI `Van`, `Cyclist`, `Person_sitting`, and `Tram`, plus every COCO category
+outside the three target classes, are excluded. This avoids relabeling
+semantically different objects or constructing synthetic classes. Both selected
+datasets use native human-labeled 2D boxes.
 
 This mapping is a protocol decision, not an assertion that all listed visual
 categories are semantically identical. The final report will identify the exact

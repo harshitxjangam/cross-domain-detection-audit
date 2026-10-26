@@ -1,7 +1,7 @@
-"""Minimal, auditable 2D readers for the shared course datasets.
+"""Minimal, auditable 2D readers for the evaluation datasets.
 
-Readers use official validation splits: KITTI's supplied ``ImageSets/val.txt``
-and nuScenes' official ``val`` scenes. No shared dataset is copied or modified.
+The primary protocol uses COCO val2017 and a documented KITTI holdout. The
+optional nuScenes reader remains available for a later authorized extension.
 """
 
 from __future__ import annotations
@@ -23,13 +23,72 @@ class AuditSample:
     gt_labels: np.ndarray
 
 
+class CocoValDataset:
+    """Read COCO val2017 with its native 2D boxes and a strict class filter."""
+
+    def __init__(self, root: Path, taxonomy: Driving3Taxonomy, split: str = "val",
+                 max_images: int | None = None):
+        if split != "val":
+            raise ValueError("COCO evaluation supports val2017 only")
+        try:
+            from pycocotools.coco import COCO
+        except ImportError as error:
+            raise RuntimeError("pycocotools is required for COCO evaluation") from error
+        self.root, self.taxonomy = Path(root), taxonomy
+        annotation_path = self.root / "annotations" / "instances_val2017.json"
+        if not annotation_path.is_file():
+            raise FileNotFoundError(f"Expected COCO val annotations: {annotation_path}")
+        self.coco = COCO(str(annotation_path))
+        self.ids = sorted(self.coco.getImgIds())
+        if max_images:
+            self.ids = self.ids[:max_images]
+        if not self.ids:
+            raise RuntimeError("COCO val2017 contains no images")
+        categories = self.coco.loadCats(self.coco.getCatIds())
+        self.category_to_label = {
+            int(category["id"]): label
+            for category in categories
+            if (label := taxonomy.name_to_id(category["name"])) is not None
+        }
+
+    @property
+    def metadata(self) -> dict:
+        return {"name": "COCO 2017", "split": "val2017",
+                "annotation_type": "native human-labeled 2D boxes"}
+
+    def __len__(self) -> int:
+        return len(self.ids)
+
+    def __iter__(self):
+        for index in range(len(self)):
+            yield self[index]
+
+    def __getitem__(self, index: int) -> AuditSample:
+        image_id = int(self.ids[index])
+        image_info = self.coco.loadImgs([image_id])[0]
+        image_path = self.root / "val2017" / image_info["file_name"]
+        if not image_path.is_file():
+            raise FileNotFoundError(f"Missing COCO image: {image_path}")
+        boxes, labels = [], []
+        annotation_ids = self.coco.getAnnIds(imgIds=[image_id], iscrowd=None)
+        for annotation in self.coco.loadAnns(annotation_ids):
+            label = self.category_to_label.get(int(annotation["category_id"]))
+            if label is None or int(annotation.get("iscrowd", 0)):
+                continue
+            x, y, width, height = map(float, annotation["bbox"])
+            if width > 0 and height > 0:
+                boxes.append([x, y, x + width, y + height])
+                labels.append(label)
+        return AuditSample(image_id, Image.open(image_path).convert("RGB"), *_arrays(boxes, labels))
+
+
 def _arrays(boxes: list[list[float]], labels: list[int]) -> tuple[np.ndarray, np.ndarray]:
     return (np.asarray(boxes, dtype=np.float32).reshape(-1, 4),
             np.asarray(labels, dtype=np.int64).reshape(-1))
 
 
 class Kitti2DDataset:
-    """Read native KITTI 2D labels without modifying the shared dataset."""
+    """Read native KITTI 2D labels without modifying the dataset copy."""
 
     def __init__(self, root: Path, taxonomy: Driving3Taxonomy, split: str = "val",
                  max_images: int | None = None):
@@ -149,6 +208,8 @@ class NuScenesFrontDataset:
 
 def build_dataset(name: str, root: Path, taxonomy: Driving3Taxonomy, *, split: str,
                   camera: str, max_images: int | None):
+    if name == "coco":
+        return CocoValDataset(root, taxonomy, split=split, max_images=max_images)
     if name == "kitti":
         return Kitti2DDataset(root, taxonomy, split=split, max_images=max_images)
     if name == "nuscenes":

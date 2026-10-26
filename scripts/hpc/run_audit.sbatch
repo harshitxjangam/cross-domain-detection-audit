@@ -31,17 +31,20 @@ export TORCH_HOME="${PROJECT_CACHE_ROOT}/torch"
 export PYTHONPATH="${PROJECT_ROOT}/src:${UPSTREAM_ROOT}:${PYTHONPATH:-}"
 
 KITTI_ROOT="${PROJECT_DATA_ROOT}/datasets/kitti"
+COCO_ROOT="${PROJECT_DATA_ROOT}/datasets/coco"
 NUSCENES_ROOT="${PROJECT_DATA_ROOT}/datasets/nuscenes/v1.0-trainval"
 OUT_DIR="${PROJECT_SCRATCH_ROOT}/runs/${RUN_NAME}"
 
 mkdir -p "${OUT_DIR}"
 CMD=(python -m detaudit.run --upstream-root "${UPSTREAM_ROOT}" --model "${MODEL}" --dataset "${DATASET}" --out-dir "${OUT_DIR}" --score-floor 0.001 --max-detections 300 --max-images "${MAX_IMAGES}" --yolo-imgsz 640 --device cuda)
-if [[ "${DATASET}" == "kitti" ]]; then
+if [[ "${DATASET}" == "coco" ]]; then
+  CMD+=(--root "${COCO_ROOT}" --split val)
+elif [[ "${DATASET}" == "kitti" ]]; then
   CMD+=(--root "${KITTI_ROOT}" --split val)
 elif [[ "${DATASET}" == "nuscenes" ]]; then
   CMD+=(--root "${NUSCENES_ROOT}" --split val --camera CAM_FRONT)
 else
-  echo "Unsupported dataset: ${DATASET}. Choose kitti or nuscenes." >&2
+  echo "Unsupported dataset: ${DATASET}. Choose coco, kitti, or nuscenes." >&2
   exit 2
 fi
 if [[ -n "${NMS_IOU}" ]]; then CMD+=(--nms-iou "${NMS_IOU}"); fi

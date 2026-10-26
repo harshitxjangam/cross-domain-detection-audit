@@ -1,4 +1,4 @@
-"""CPU-only validation for the shared KITTI and nuScenes audit inputs."""
+"""CPU-only validation for the COCO source and KITTI target audit inputs."""
 
 from __future__ import annotations
 
@@ -30,8 +30,8 @@ def describe(dataset_name: str, root: Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate audit datasets without GPU inference.")
+    parser.add_argument("--coco-root", type=Path, required=True)
     parser.add_argument("--kitti-root", type=Path, required=True)
-    parser.add_argument("--nuscenes-root", type=Path, required=True)
     parser.add_argument("--upstream-root", type=Path, required=True)
     args = parser.parse_args()
     sys.path.insert(0, str(args.upstream_root))
@@ -47,8 +47,8 @@ def main() -> None:
     print(json.dumps({
         "upstream_build_detector": str(build_detector),
         "runtime_packages": package_versions,
+        "coco": describe("coco", args.coco_root),
         "kitti": describe("kitti", args.kitti_root),
-        "nuscenes": describe("nuscenes", args.nuscenes_root),
     }, indent=2))
 
 

@@ -33,19 +33,37 @@ It does not download a dataset or begin an experiment.
 
 ## Data and first run
 
-Use only an authorized dataset copy. Start with a small, documented pilot
-manifest before downloading or processing a larger validation subset. Do not
-mix pilot results with final-report metrics.
+The execution protocol uses COCO val2017 as the source domain and a
+deterministic 1,500-image KITTI holdout as the target-domain pool. The primary
+matrix evaluates a fixed 1,000-image subset from each pool. This cap is a
+budgeted, reproducible protocol decision, not a claim of full-dataset metrics.
+The result metadata records the exact image manifest.
 
-After the data root is verified, activate the virtual environment and run the
+COCO val2017 can be downloaded directly into the Pod:
+
+```bash
+cd /workspace/cross-domain-detection-audit
+bash scripts/cloud/download_coco_val.sh
+```
+
+Download KITTI's labeled object-detection training images and labels only after
+accepting its official terms. Extract them under
+`/workspace/detaudit-data/kitti`, then create the declared target holdout:
+
+```bash
+python scripts/cloud/prepare_kitti_split.py \
+  --root /workspace/detaudit-data/kitti --val-count 1500 --seed 2026
+```
+
+After the data roots are verified, activate the virtual environment and run the
 preflight command with the actual roots:
 
 ```bash
 source /workspace/venv-detaudit/bin/activate
 export PYTHONPATH=/workspace/cross-domain-detection-audit/src
 python -m detaudit.preflight \
+  --coco-root /workspace/detaudit-data/coco \
   --kitti-root /workspace/detaudit-data/kitti \
-  --nuscenes-root /workspace/detaudit-data/nuscenes/v1.0-trainval \
   --upstream-root /workspace/DeepDataMiningLearning
 ```
 

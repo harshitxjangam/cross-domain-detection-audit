@@ -1,9 +1,4 @@
-"""Strict three-class intersection for KITTI and nuScenes camera evaluation.
-
-The course cluster does not host nuImages. This project therefore evaluates
-COCO-pretrained detectors on two available autonomous-driving domains, using
-only object categories with unambiguous equivalents in both datasets.
-"""
+"""Strict three-class protocol for COCO source and KITTI target evaluation."""
 
 from __future__ import annotations
 
@@ -13,9 +8,8 @@ from typing import Mapping, Optional
 
 CLASSES = ("person", "car", "truck")
 
-# Exact labels admitted from each ground-truth dataset. In particular, KITTI
-# Van and Cyclist, and nuScenes bicycle/motorcycle/bus/trailer, are excluded:
-# folding any of them into another label would contaminate the error audit.
+# Exact labels admitted from each ground-truth dataset. KITTI Van and Cyclist
+# are excluded: folding either into another label would contaminate the audit.
 KITTI_EXACT = {"car": "car", "truck": "truck", "pedestrian": "person"}
 NUSCENES_EXACT = {
     "vehicle.car": "car",
@@ -31,7 +25,7 @@ NUSCENES_EXACT = {
 class Driving3Taxonomy:
     """Duck-types the taxonomy interface used by the course detector adapters."""
 
-    name: str = "kitti_nuscenes3"
+    name: str = "coco_kitti3"
     classes: tuple[str, ...] = CLASSES
 
     @property
