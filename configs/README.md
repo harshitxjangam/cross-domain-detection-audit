@@ -11,4 +11,4 @@ Planned names:
 - `experiments/nms_sweep.json`
 
 The declared protocol is COCO-pretrained source-domain evaluation on COCO
-val2017 and zero-shot transfer to KITTI validation.
+val2017 and zero-shot transfer to a declared KITTI held-out split.

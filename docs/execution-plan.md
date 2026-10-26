@@ -12,7 +12,8 @@ network policy permits. Record the upstream commit SHA.
 
 On RunPod, use `scripts/cloud/bootstrap.sh` after deployment. It is not an
 experiment: it only validates CUDA and installs the required runtimes. Before
-the GPU matrix, inspect one sample from COCO val2017 and KITTI val without
+the GPU matrix, inspect one sample from COCO val2017 and the declared KITTI
+held-out split without
 writing to the dataset directories.
 
 ## 2. Smoke test

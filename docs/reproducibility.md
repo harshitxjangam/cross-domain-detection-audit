@@ -18,7 +18,8 @@ the commands and include enough output metadata for an independent rerun.
 ## Planned execution order
 
 1. Validate the environment and every model adapter on 5--20 images.
-2. Generate fixed evaluation manifests for COCO val2017 and KITTI val images.
+2. Generate fixed evaluation manifests for COCO val2017 and the declared KITTI
+   held-out images.
 3. Run the zero-shot baseline matrix.
 4. Run latency/memory profiling after warm-up with batch size 1, on the same
    GPU type for every model.

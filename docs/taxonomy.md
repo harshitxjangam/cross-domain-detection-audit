@@ -22,7 +22,8 @@ category IDs and the implementation function used to apply this mapping.
 
 ### Fairness rules
 
-- All models use the same declared validation images for a dataset.
+- All models use the same declared image manifest for a dataset. COCO uses
+  val2017; KITTI uses the repository's deterministic held-out split.
 - Model-native preprocessing is used and recorded. We do not force a shared
   resize policy that changes a checkpoint's intended evaluation recipe.
 - Raw diagnostic predictions use a fixed low candidate score floor (`0.001`)

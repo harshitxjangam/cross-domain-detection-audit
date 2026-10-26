@@ -166,7 +166,7 @@ def main() -> None:
     parser.add_argument("--root", type=Path, required=True,
                         help="COCO root, KITTI root, or nuScenes v1.0-trainval root")
     parser.add_argument("--out-dir", type=Path, required=True)
-    parser.add_argument("--split", default="val", help="KITTI split or nuScenes official split (val only)")
+    parser.add_argument("--split", default="val", help="COCO val2017, declared KITTI split, or nuScenes val")
     parser.add_argument("--camera", default="CAM_FRONT", help="nuScenes camera; fixed to CAM_FRONT by protocol")
     parser.add_argument("--max-images", type=int, default=0, help="0 evaluates the full split")
     parser.add_argument("--score-floor", type=float, default=0.001)

@@ -29,7 +29,7 @@ the three-class protocol are excluded rather than relabeled.
 ## Experimental design
 
 1. **Zero-shot baseline:** evaluate all four COCO-pretrained checkpoints on
-   the declared COCO val2017 and KITTI validation splits.
+   COCO val2017 and the declared KITTI held-out split.
 2. **Failure strata:** break AP and recall down by class, original-image object
    scale, same-class overlap, and all-class neighborhood density.
 3. **NMS intervention:** sweep final-stage NMS IoU only for YOLO and Faster

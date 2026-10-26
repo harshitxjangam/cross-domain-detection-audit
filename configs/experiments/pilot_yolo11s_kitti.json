@@ -9,5 +9,5 @@
   "coco_max_detections": 100,
   "input_resolution": 640,
   "nms_iou": 0.7,
-  "purpose": "Smoke-test the complete artifact and metric pipeline on the declared KITTI validation split."
+  "purpose": "Smoke-test the complete artifact and metric pipeline on the declared KITTI held-out split."
 }
