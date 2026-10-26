@@ -16,10 +16,11 @@ fetch() {
   fi
 }
 
-# Use COCO's regional S3 endpoint. Its TLS certificate works in cloud
-# environments where the images.cocodataset.org alias can fail hostname checks.
-fetch "https://s3-us-east-1.amazonaws.com/images.cocodataset.org/zips/val2017.zip" "${WORK_DIR}/val2017.zip"
-fetch "https://s3-us-east-1.amazonaws.com/images.cocodataset.org/annotations/annotations_trainval2017.zip" \
+# Use COCO's official path-style S3 endpoint. Its TLS certificate works in
+# cloud environments where the images.cocodataset.org alias can fail hostname
+# checks.
+fetch "https://s3.amazonaws.com/images.cocodataset.org/zips/val2017.zip" "${WORK_DIR}/val2017.zip"
+fetch "https://s3.amazonaws.com/images.cocodataset.org/annotations/annotations_trainval2017.zip" \
   "${WORK_DIR}/annotations_trainval2017.zip"
 
 unzip -q -n "${WORK_DIR}/val2017.zip" -d "${DATA_ROOT}"
