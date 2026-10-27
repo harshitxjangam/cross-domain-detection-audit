@@ -46,13 +46,13 @@ cd /workspace/cross-domain-detection-audit
 bash scripts/cloud/download_coco_val.sh
 ```
 
-Download KITTI's labeled object-detection training images and labels only after
-accepting its official terms. Extract them under
-`/workspace/detaudit-data/kitti`, then create the declared target holdout:
+Register for KITTI download access and review its official terms before using
+the automated download. The script downloads the official object image and
+label archives, extracts only the labeled training portion, verifies all 7,481
+pairs, and creates the deterministic target holdout:
 
 ```bash
-python scripts/cloud/prepare_kitti_split.py \
-  --root /workspace/detaudit-data/kitti --val-count 1500 --seed 2026
+KITTI_TERMS_ACCEPTED=1 bash scripts/cloud/download_kitti_object.sh
 ```
 
 After the data roots are verified, activate the virtual environment and run the
@@ -81,6 +81,29 @@ python -m detaudit.summarize /workspace/detaudit-outputs \
 The summary retains the model, dataset, image count, AP and AR metrics,
 per-class AP, latency, throughput, peak CUDA allocation, NMS threshold, TIDE
 errors, and the raw-record SHA-256 identifier.
+
+## Production run
+
+Once bootstrap, COCO, and KITTI setup succeed, launch the complete matrix with
+one command:
+
+```bash
+cd /workspace/cross-domain-detection-audit
+bash scripts/cloud/run_production_matrix.sh
+```
+
+The script first runs a 20-image KITTI pilot, then executes eight source and
+target baselines and ten target-domain NMS interventions. A completed run is
+skipped on restart only when its metrics, raw records, strata, and TIDE report
+all exist. At completion it creates these files for download:
+
+```text
+/workspace/detaudit-artifacts.tar.gz
+/workspace/detaudit-artifacts.tar.gz.sha256
+```
+
+Do not stop the Pod until both files have been copied to the local machine and
+their SHA-256 values match.
 
 ## Shutdown discipline
 
