@@ -51,3 +51,5 @@ Run TIDE from saved artifacts and verify the required `Cls`, `Loc`, `Both`,
 `Dupe`, `Bkg`, and `Miss` interpretation. Use the project strata to distinguish
 same-class overlap (directly NMS-relevant) from all-class neighborhood density.
 Generate tables/figures only from recorded JSON artifacts.
+Use `detaudit.summarize` to produce the machine-readable CSV and JSON tables;
+do not copy metric values into the report by hand.

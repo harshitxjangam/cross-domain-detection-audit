@@ -67,6 +67,21 @@ python -m detaudit.preflight \
   --upstream-root /workspace/DeepDataMiningLearning
 ```
 
+## Result tables
+
+After the baseline and intervention runs finish, generate the report-ready
+summary directly from the saved artifacts:
+
+```bash
+python -m detaudit.summarize /workspace/detaudit-outputs \
+  --csv /workspace/detaudit-outputs/summary.csv \
+  --json /workspace/detaudit-outputs/summary.json
+```
+
+The summary retains the model, dataset, image count, AP and AR metrics,
+per-class AP, latency, throughput, peak CUDA allocation, NMS threshold, TIDE
+errors, and the raw-record SHA-256 identifier.
+
 ## Shutdown discipline
 
 Stop the Pod immediately after a completed command or deliberate checkpoint.

@@ -7,12 +7,12 @@ post-processing and error modes under cross-domain shift.
 
 ## Research question
 
-For COCO-pretrained detectors transferred without fine-tuning to two
-autonomous-driving domains, how much of the failure on small and nearby objects
+For COCO-pretrained detectors transferred without fine-tuning to an
+autonomous-driving domain, how much of the failure on small and nearby objects
 is associated with duplicate suppression versus upstream recall, localization,
 or classification errors?
 
-The study will compare three configurations from two families:
+The study compares four configurations from three detector families:
 
 | Configuration | Family | Role |
 |---|---|---|
@@ -77,9 +77,9 @@ intervention guard, original-coordinate strata, and saved-records-to-TIDE path.
 
 ## Status
 
-The protocol and HPC template are prepared. The exact class storage roots,
-available GPU partition, and installed module versions must be verified after
-login before the first run.
+The protocol, local checks, HPC template, and bounded cloud workflow are
+implemented. Generated metrics and raw predictions remain outside Git and are
+identified by hashes in each run's metadata.
 
 ## Academic integrity
 

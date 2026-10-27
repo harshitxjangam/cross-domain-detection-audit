@@ -21,6 +21,7 @@ from PIL import Image
 from detaudit.analyze import strata
 from detaudit.datasets import CocoValDataset, Kitti2DDataset
 from detaudit.run import coco_metrics, configure_detector, resolve_device
+from detaudit.summarize import discover_runs, summarize_run, write_csv
 from detaudit.taxonomy import Driving3Taxonomy, kitti_to_id, nuscenes_to_id
 from detaudit.tide_report import main as tide_main
 
@@ -148,6 +149,32 @@ class TestArtifactAnalysis(unittest.TestCase):
             report = json.loads((out / "tide_report.json").read_text(encoding="utf-8"))
             self.assertIn("Dupe", report["main_error_dAP"]["tide_predictions"])
             self.assertEqual(report["source_records"], str(records))
+
+    def test_completed_runs_are_summarized_for_report_tables(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            run_dir = root / "yolo11s-coco-1000"
+            (run_dir / "tide").mkdir(parents=True)
+            payload = {
+                "metrics": {"mAP": 0.4, "AP50": 0.6, "per_class": {"car": 0.5}},
+                "metadata": {
+                    "model": "yolo:yolo11s.pt", "dataset": "coco", "num_images": 1000,
+                    "postprocessing": {"final_nms_iou": 0.7}, "fps": 80.0,
+                    "mean_latency_ms": 12.5, "median_latency_ms": 11.0,
+                    "peak_cuda_memory_bytes": 104857600, "records_sha256": "abc",
+                },
+            }
+            (run_dir / "metrics.json").write_text(json.dumps(payload), encoding="utf-8")
+            tide = {"main_error_dAP": {"tide_predictions": {"Dupe": 0.8}}}
+            (run_dir / "tide" / "tide_report.json").write_text(json.dumps(tide), encoding="utf-8")
+            self.assertEqual(discover_runs(root), [run_dir])
+            row = summarize_run(run_dir)
+            self.assertEqual(row["num_images"], 1000)
+            self.assertEqual(row["peak_cuda_memory_mib"], 100.0)
+            self.assertEqual(row["TIDE_Dupe"], 0.8)
+            csv_path = root / "summary.csv"
+            write_csv(csv_path, [row])
+            self.assertIn("records_sha256", csv_path.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

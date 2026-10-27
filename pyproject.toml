@@ -14,6 +14,7 @@ detaudit-run = "detaudit.run:main"
 detaudit-analyze = "detaudit.analyze:main"
 detaudit-tide = "detaudit.tide_report:main"
 detaudit-preflight = "detaudit.preflight:main"
+detaudit-summarize = "detaudit.summarize:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
