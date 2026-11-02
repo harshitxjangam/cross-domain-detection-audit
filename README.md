@@ -35,10 +35,13 @@ the three-class protocol are excluded rather than relabeled.
 3. **NMS intervention:** sweep final-stage NMS IoU only for YOLO and Faster
    R-CNN. For Faster R-CNN, RPN NMS remains fixed; RT-DETR is an NMS-free
    architecture comparison, not an NMS toggle.
-4. **Error decomposition:** apply TIDE to saved predictions to measure
+4. **Mechanism check:** use the saved NMS predictions to measure
+   same-class isolated, near, and overlap recall under score-ordered matching.
+   This tests whether an NMS change primarily recovers crowded objects.
+5. **Error decomposition:** apply TIDE to saved predictions to measure
    classification, localization, combined, duplicate, background, and missed
    ground-truth contributions.
-5. **Speed profile:** record end-to-end latency, throughput, and peak GPU
+6. **Speed profile:** record end-to-end latency, throughput, and peak GPU
    memory on the same allocated GPU type.
 
 The key result is a **failure anatomy**, rather than a single mAP number:
@@ -83,7 +86,8 @@ The completed evidence set contains 18 runs: eight zero-shot baseline runs
 (two NMS-based architectures by five IoU thresholds). The submission report and
 compact result tables are generated directly from the saved artifacts. Raw
 predictions remain outside Git and are identified by SHA-256 hashes in
-`results/summary.csv`.
+`results/summary.csv`. A CPU-only, stratum-conditioned NMS mechanism analysis
+is generated from those same records in `results/nms_same_class_stratum_recall.csv`.
 
 ## Academic integrity
 

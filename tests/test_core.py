@@ -20,6 +20,7 @@ from PIL import Image
 
 from detaudit.analyze import strata
 from detaudit.datasets import CocoValDataset, Kitti2DDataset
+from detaudit.nms_strata import same_class_stratum_recall
 from detaudit.run import coco_metrics, configure_detector, resolve_device
 from detaudit.summarize import discover_runs, summarize_run, write_csv
 from detaudit.taxonomy import Driving3Taxonomy, kitti_to_id, nuscenes_to_id
@@ -120,6 +121,18 @@ class TestArtifactAnalysis(unittest.TestCase):
         self.assertEqual(summary["scale/small"], 2)
         self.assertEqual(summary["same_class/same_isolated"], 2)
         self.assertEqual(summary["all_class/all_isolated"], 2)
+
+    def test_nms_strata_recall_is_score_ordered_and_one_to_one(self):
+        example = record()
+        example["gt_boxes_xyxy"] = [[10, 10, 30, 30], [12, 12, 32, 32]]
+        example["gt_labels"] = [0, 0]
+        example["pred_boxes_xyxy"] = [[10, 10, 30, 30], [12, 12, 32, 32]]
+        example["pred_scores"] = [0.9, 0.8]
+        example["pred_labels"] = [0, 0]
+        summary = same_class_stratum_recall([example])
+        self.assertEqual(summary["overlap"]["total"], 2)
+        self.assertEqual(summary["overlap"]["matched"], 2)
+        self.assertAlmostEqual(summary["overlap"]["recall"], 1.0)
 
     def test_coco_metrics_evaluate_shared_three_class_space(self):
         with contextlib.redirect_stdout(io.StringIO()):
