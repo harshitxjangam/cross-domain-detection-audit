@@ -55,7 +55,8 @@ actual saved experiment artifacts.
 - `src/`: project-specific measurement and analysis code.
 - `docs/`: taxonomy and reproducibility documentation.
 - `commands/`: exact commands used for each completed experiment.
-- `scripts/`: HPC staging, Slurm submission, and result-generation helpers.
+- `report/`: final PDF report and data-derived figures.
+- `results/`: compact, hash-linked summaries of all completed runs.
 
 Datasets, upstream repositories, model weights, logs, and generated figures
 are deliberately excluded from Git. See `docs/reproducibility.md` before
@@ -77,9 +78,12 @@ intervention guard, original-coordinate strata, and saved-records-to-TIDE path.
 
 ## Status
 
-The protocol, local checks, HPC template, and bounded cloud workflow are
-implemented. Generated metrics and raw predictions remain outside Git and are
-identified by hashes in each run's metadata.
+The completed evidence set contains 18 runs: eight zero-shot baseline runs
+(four configurations by two domains) and ten KITTI final-NMS intervention runs
+(two NMS-based architectures by five IoU thresholds). The submission report and
+compact result tables are generated directly from the saved artifacts. Raw
+predictions remain outside Git and are identified by SHA-256 hashes in
+`results/summary.csv`.
 
 ## Academic integrity
 
