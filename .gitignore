@@ -1,5 +1,6 @@
 # Local continuity notes: never commit chat context or credentials.
 LOCAL_CONTEXT.md
+LOCAL_HANDOFF.md
 
 # Credentials and machine-specific configuration.
 .env
