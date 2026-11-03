@@ -43,7 +43,11 @@ def main() -> None:
     parser.add_argument("--image-id", type=int, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--min-score", type=float, default=.25)
+    parser.add_argument("--scale", type=int, default=1,
+                        help="Integer output upscaling factor for presentation only.")
     args = parser.parse_args()
+    if args.scale < 1:
+        parser.error("--scale must be at least 1")
 
     records = json.loads(args.records.read_text(encoding="utf-8"))
     record = next((row for row in records if int(row["image_id"]) == args.image_id), None)
@@ -70,6 +74,8 @@ def main() -> None:
     draw.text((8, 12), "Ground truth: person blue, car green, truck orange", fill="black", font=font)
     draw.text((width + 8, 12), f"YOLO11s predictions, score >= {args.min_score:.2f}", fill="black", font=font)
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    if args.scale > 1:
+        canvas = canvas.resize((canvas.width * args.scale, canvas.height * args.scale), Image.Resampling.LANCZOS)
     canvas.save(args.output)
 
 
