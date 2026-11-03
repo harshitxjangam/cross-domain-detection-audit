@@ -3,6 +3,7 @@ LOCAL_CONTEXT.md
 LOCAL_HANDOFF.md
 CONTEXT.md
 REVIEW_DATA.md
+REPORT_AGENT_HANDOFF.md
 
 # Credentials and machine-specific configuration.
 .env
