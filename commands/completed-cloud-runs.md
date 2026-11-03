@@ -17,40 +17,51 @@ and TIDE report; the SHA-256 of each raw record file is in `results/summary.csv`
 
 ## Baseline matrix
 
-The baseline matrix was run once for each model and dataset pair:
+The following eight exact top-level invocations were run once each. The
+environment variables use the cloud workspace defaults encoded by the project
+scripts.
 
 ```bash
-MAX_IMAGES=1000 bash scripts/cloud/run_evaluation.sh \
-  <run-name> <model-id> <coco-or-kitti>
+MAX_IMAGES=1000 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh yolo11s-coco-1000 yolo:yolo11s.pt coco
+MAX_IMAGES=1000 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh yolo11s-kitti-1000 yolo:yolo11s.pt kitti
+MAX_IMAGES=1000 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh yolo11m-coco-1000 yolo:yolo11m.pt coco
+MAX_IMAGES=1000 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh yolo11m-kitti-1000 yolo:yolo11m.pt kitti
+MAX_IMAGES=1000 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh fasterrcnn-r50-fpn-v2-coco-1000 torchvision:fasterrcnn_resnet50_fpn_v2 coco
+MAX_IMAGES=1000 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh fasterrcnn-r50-fpn-v2-kitti-1000 torchvision:fasterrcnn_resnet50_fpn_v2 kitti
+MAX_IMAGES=1000 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh rtdetr-r50-coco-1000 hf_detr:PekingU/rtdetr_r50vd coco
+MAX_IMAGES=1000 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh rtdetr-r50-kitti-1000 hf_detr:PekingU/rtdetr_r50vd kitti
 ```
 
-| Run name | Model ID | Dataset |
-|---|---|---|
-| `yolo11s-coco-1000` | `yolo:yolo11s.pt` | COCO val2017 |
-| `yolo11s-kitti-1000` | `yolo:yolo11s.pt` | KITTI |
-| `yolo11m-coco-1000` | `yolo:yolo11m.pt` | COCO val2017 |
-| `yolo11m-kitti-1000` | `yolo:yolo11m.pt` | KITTI |
-| `fasterrcnn-r50-fpn-v2-coco-1000` | `torchvision:fasterrcnn_resnet50_fpn_v2` | COCO val2017 |
-| `fasterrcnn-r50-fpn-v2-kitti-1000` | `torchvision:fasterrcnn_resnet50_fpn_v2` | KITTI |
-| `rtdetr-r50-coco-1000` | `hf_detr:PekingU/rtdetr_r50vd` | COCO val2017 |
-| `rtdetr-r50-kitti-1000` | `hf_detr:PekingU/rtdetr_r50vd` | KITTI |
+Each wrapper expands to `python -m detaudit.run` with `--split val`,
+`--score-floor 0.001`, `--max-detections 300`, `--max-images 1000`,
+`--yolo-imgsz 640`, and `--device cuda`. The fixed `Driving3Taxonomy`
+(`person`, `car`, `truck`) is constructed in the runner rather than supplied
+through a CLI flag. Metrics use a fixed COCO `maxDets=100` cap.
 
 ## Final-stage NMS intervention
 
-The following pattern was run for NMS IoU values `0.30`, `0.45`, `0.60`,
-`0.75`, and `0.90` on KITTI. Model weights, image manifest, score floor, and
-candidate cap were fixed. For Faster R-CNN, only final RoI detection NMS was
-changed; RPN NMS was held fixed.
+The following exact top-level invocations were run for NMS IoU values `0.30`,
+`0.45`, `0.60`, `0.75`, and `0.90` on KITTI. Model weights, image manifest,
+score floor, and candidate cap were fixed. For Faster R-CNN, only final RoI
+detection NMS was changed; RPN NMS was held fixed.
 
 ```bash
-MAX_IMAGES=1000 NMS_IOU=<threshold> \
-  bash scripts/cloud/run_evaluation.sh <run-name> <model-id> kitti
+MAX_IMAGES=1000 NMS_IOU=0.3 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh yolo11s-kitti-nms-03 yolo:yolo11s.pt kitti
+MAX_IMAGES=1000 NMS_IOU=0.45 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh yolo11s-kitti-nms-045 yolo:yolo11s.pt kitti
+MAX_IMAGES=1000 NMS_IOU=0.6 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh yolo11s-kitti-nms-06 yolo:yolo11s.pt kitti
+MAX_IMAGES=1000 NMS_IOU=0.75 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh yolo11s-kitti-nms-075 yolo:yolo11s.pt kitti
+MAX_IMAGES=1000 NMS_IOU=0.9 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh yolo11s-kitti-nms-09 yolo:yolo11s.pt kitti
+
+MAX_IMAGES=1000 NMS_IOU=0.3 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh fasterrcnn-kitti-nms-03 torchvision:fasterrcnn_resnet50_fpn_v2 kitti
+MAX_IMAGES=1000 NMS_IOU=0.45 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh fasterrcnn-kitti-nms-045 torchvision:fasterrcnn_resnet50_fpn_v2 kitti
+MAX_IMAGES=1000 NMS_IOU=0.6 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh fasterrcnn-kitti-nms-06 torchvision:fasterrcnn_resnet50_fpn_v2 kitti
+MAX_IMAGES=1000 NMS_IOU=0.75 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh fasterrcnn-kitti-nms-075 torchvision:fasterrcnn_resnet50_fpn_v2 kitti
+MAX_IMAGES=1000 NMS_IOU=0.9 OUTPUT_ROOT=/workspace/detaudit-outputs bash scripts/cloud/run_evaluation.sh fasterrcnn-kitti-nms-09 torchvision:fasterrcnn_resnet50_fpn_v2 kitti
 ```
 
-| Run prefix | Model ID |
-|---|---|
-| `yolo11s-kitti-nms-{03,045,06,075,09}` | `yolo:yolo11s.pt` |
-| `fasterrcnn-kitti-nms-{03,045,06,075,09}` | `torchvision:fasterrcnn_resnet50_fpn_v2` |
+The wrapper appends `--nms-iou` with the supplied `NMS_IOU` value. The runner
+sets `detector.model.roi_heads.nms_thresh` for Faster R-CNN and records
+`rpn_nms_changed: false` in the run metadata.
 
 `RT-DETR` was not included in this intervention because it uses query-based,
 set-prediction inference rather than a final NMS stage.
